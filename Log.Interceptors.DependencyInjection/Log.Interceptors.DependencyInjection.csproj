@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Log.Interceptors\Log.Interceptors.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DependencyInjection.Interception">
+      <HintPath>..\..\Libs\DependencyInjection\Interception\DependencyInjection.Interception.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="set logDir=$(ProjectDir)\..\..\Libs\Log&#xD;&#xA;set outDir=%25logDir%25\Interceptors.DependencyInjection\&#xD;&#xA;if not exist &quot;%25outDir%25&quot; mkdir  &quot;%25outDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25outDir%25&quot;" />
+  </Target>
+
+</Project>

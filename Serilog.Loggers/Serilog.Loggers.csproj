@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SerilogPropertiesLogInterceptor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Log.Interceptors\Log.Interceptors.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="set logDir=$(ProjectDir)\..\..\Libs\Log&#xD;&#xA;set outDir=%25logDir%25\Serilog.Loggers\&#xD;&#xA;if not exist &quot;%25outDir%25&quot; mkdir  &quot;%25outDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25outDir%25&quot;" />
+  </Target>
+
+</Project>
