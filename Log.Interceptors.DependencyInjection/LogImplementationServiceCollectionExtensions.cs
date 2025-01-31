@@ -15,7 +15,8 @@ public static class LogImplementationServiceCollectionExtensions
     private static IServiceCollection SetLogImplementationFactoryIfNeed(this IServiceCollection services)
     {
         var implementationService = services.FirstOrDefault(s => s.ServiceType == typeof(ILoggerFactory) 
-                                                              && s.ImplementationType == typeof(LoggerImplementationFactory));
+                                                              && (s.ImplementationType == typeof(LoggerImplementationFactory) ||
+                                                               s.ImplementationFactory?.Target?.GetType().DeclaringType == typeof(InterceptorExtensions)));
         return implementationService == null ? services.Intercept<ILoggerFactory, LoggerImplementationFactory>() : services;
     }
 

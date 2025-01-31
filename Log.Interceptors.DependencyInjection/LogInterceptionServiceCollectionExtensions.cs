@@ -9,7 +9,9 @@ public static class LogInterceptionServiceCollectionExtensions
     private static IServiceCollection SetLogInterceptionFactoryIfNeed(this IServiceCollection services)
     {
         var interceptionService = services.FirstOrDefault(s => s.ServiceType == typeof(ILoggerFactory)
-                                                              && s.ImplementationType == typeof(LogInterceptionFactoryImpl));
+                                                              && (s.ImplementationType == typeof(LogInterceptionFactoryImpl) || 
+                                                                s.ImplementationFactory?.Target?.GetType().DeclaringType == typeof(InterceptorExtensions))
+                                                              );
         return interceptionService == null ? services.Intercept<ILoggerFactory, LogInterceptionFactoryImpl>() : services;
     }
 
