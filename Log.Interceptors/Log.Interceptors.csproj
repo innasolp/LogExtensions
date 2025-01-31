@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set logDir=$(ProjectDir)\..\..\Libs\Log&#xD;&#xA;set outDir=%25logDir%25\Log.Interceptors\&#xD;&#xA;if not exist &quot;%25outDir%25&quot; mkdir  &quot;%25outDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25outDir%25&quot;" />
+    <Exec Command="set logDir=$(ProjectDir)\..\..\Libs\Log&#xD;&#xA;set outDir=%25logDir%25\Log.Interceptors\&#xD;&#xA;if not exist &quot;%25outDir%25&quot; mkdir  &quot;%25outDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25outDir%25&quot;&#xD;&#xA;set currentDir=$(SolutionDir)\Libs\Log\Log.Interceptors\&#xD;&#xA;if not exist &quot;%25currentDir%25&quot; mkdir  &quot;%25currentDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25currentDir%25&quot;" />
   </Target>
 
 </Project>
