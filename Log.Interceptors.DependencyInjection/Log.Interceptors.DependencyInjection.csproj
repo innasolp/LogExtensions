@@ -5,20 +5,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Log interception dependency injection extensions</Title>
+    <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DependencyInjection.Interception" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Log.Interceptors\Log.Interceptors.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="DependencyInjection.Interception">
-      <HintPath>..\..\Libs\DependencyInjection\Interception\DependencyInjection.Interception.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

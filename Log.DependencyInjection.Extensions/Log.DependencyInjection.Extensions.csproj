@@ -5,6 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Log depency injection extensions</Title>
+    <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
