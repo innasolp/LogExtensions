@@ -8,6 +8,10 @@
     <Title>Log interception</Title>
     <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Version>$(VersionPrefix)</Version>
+    <Authors>innasolp</Authors>
+    <RepositoryUrl>https://github.com/innasolp/LogExtensions</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

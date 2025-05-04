@@ -8,6 +8,10 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Serilog configuration extensions</Title>
     <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Version>$(VersionPrefix)</Version>
+    <Authors>innasolp</Authors>
+    <RepositoryUrl>https://github.com/innasolp/LogExtensions</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
