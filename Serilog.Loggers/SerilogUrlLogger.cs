@@ -33,6 +33,6 @@ public class SerilogUrlLogger(Microsoft.Extensions.Logging.ILogger logger) : Log
     }
 }
 
-public class SerilogUrlLogger<T>(ILogger<T> logger) : SerilogUrlLogger(logger), ILogger<T>
+public class SerilogUrlLogger<T>(Microsoft.Extensions.Logging.ILogger logger) : SerilogUrlLogger(logger), ILogger<T>
 {
 }
