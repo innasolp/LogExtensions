@@ -27,6 +27,7 @@ public class SerilogUrlLogger(Microsoft.Extensions.Logging.ILogger logger) : Log
         var baseUrl = $"{uri.Scheme}://{uri.Host}" + (!uri.IsDefaultPort ? $":{uri.Port}" : "");
 
         using (LogContext.PushProperty("Url", baseUrl))
+        using (LogContext.PushProperty("Host", uri.Host))
         {
             base.Log(logLevel, eventId, state, exception, formatter);
         }
