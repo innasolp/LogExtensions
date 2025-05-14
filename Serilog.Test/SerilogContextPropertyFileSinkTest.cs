@@ -138,7 +138,7 @@ public class SerilogContextPropertyFileSinkTest
 
         _builder.Services.AddLogInterception<TestLogger<object>>(logger =>
         {
-            return new SerilogPropertyLogger(logger, "CustomProperty", customProperty);
+            return new SerilogPropertyLogger(logger, new Dictionary<string, object>() { { "CustomProperty", customProperty }, { "TestPushProp", "push" } });
         });
 
         _builder.Services.AddSingleton<TestLogger<object>>();

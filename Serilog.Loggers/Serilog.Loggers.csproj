@@ -4,12 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>1.0.0.1</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Serilog logger classes</Title>
     <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
     <PackageId>$(AssemblyName)</PackageId>
-    <Version>$(VersionPrefix)</Version>
+    <Version>$(Version)</Version>
     <Authors>innasolp</Authors>
     <RepositoryUrl>https://github.com/innasolp/LogExtensions</RepositoryUrl>
   </PropertyGroup>
