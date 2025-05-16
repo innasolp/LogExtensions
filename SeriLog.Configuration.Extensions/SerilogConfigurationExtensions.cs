@@ -3,14 +3,7 @@
 namespace Serilog.Configuration.Extensions;
 
 public static class SerilogConfigurationExtensions
-{
-    public static LoggerConfiguration SetSystemsSerilogConfig(this LoggerConfiguration serilogConfiguration, 
-        IConfigurationBuilder configurationBuilder,
-        string logContextPath)
-    {
-        return serilogConfiguration.SetSystemsSerilogConfig(configurationBuilder,logContextPath, "Logs");
-    }
-
+{  
     public static LoggerConfiguration SetSystemsSerilogConfig(this LoggerConfiguration serilogConfiguration, 
         IConfigurationBuilder configurationBuilder, 
         string logContextPath, 
@@ -29,10 +22,12 @@ public static class SerilogConfigurationExtensions
         string logsPath,
         string? func)
     {
-        var systemConf = configurationBuilder.BuildConfWithSerilogFunc(logContextPath, func, "SourceContext", "Microsoft", $"{logsPath}/system");
+        var systemConf = configurationBuilder.BuildConfWithSerilogProperties(logContextPath, $"{logsPath}/system",
+            expressions:[new SerilogPropertyExpression (func, ["SourceContext", "Microsoft"])]);
         serilogConfiguration = serilogConfiguration.ReadFrom.Configuration(systemConf);
 
-        var httpConf = configurationBuilder.BuildConfWithSerilogFunc(logContextPath, func, "SourceContext", "System.Net.Http", $"{logsPath}/net.http");
+        var httpConf = configurationBuilder.BuildConfWithSerilogProperties(logContextPath, $"{logsPath}/net.http",
+            expressions: [new SerilogPropertyExpression(func, ["SourceContext", "System.Net.Http"])]);
         return serilogConfiguration.ReadFrom.Configuration(httpConf);
     }
 
@@ -50,21 +45,46 @@ public static class SerilogConfigurationExtensions
         IConfigurationBuilder configurationBuilder,
         string logContextPath,
         string logPath, 
-        string? func, 
-        string? propertyName,
-        string? propertyValue)
+        string func, 
+        string propertyName,
+        string propertyValue,
+        IEnumerable<string>? outputProperties = null)
     {
-        var systemConf = configurationBuilder.BuildConfWithSerilogFunc(logContextPath,func, propertyName, propertyValue, logPath);
+        return serilogConfiguration.SetSerilogConfigForServiceByFunc(configurationBuilder,
+            logContextPath, 
+            logPath,
+            func,
+            new ContextProperty(propertyName),
+            propertyValue,outputProperties);
+    }
+
+    public static LoggerConfiguration SetSerilogConfigForServiceByFunc(this LoggerConfiguration serilogConfiguration,
+        IConfigurationBuilder configurationBuilder,
+        string logContextPath,
+        string logPath,
+        string func,
+        ContextProperty property,
+        string propertyValue,
+        IEnumerable<string>? outputProperties = null)
+    {
+        var systemConf = configurationBuilder.BuildConfWithSerilogProperties(logContextPath, logPath,
+            expressions: [new SerilogPropertyExpression(func, [property, propertyValue])],
+            outputProperties);
         return serilogConfiguration.ReadFrom.Configuration(systemConf);
     }
-    
+
     public static LoggerConfiguration SetSerilogConfigProperties(this LoggerConfiguration serilogConfiguration,
        IConfigurationBuilder configurationBuilder,
        string logContextPath,
-       string logPath,
-       IEnumerable<SerilogPropertyExpression> expressions)
+       string logPath,       
+       IEnumerable<string>? propertyToOutputs = null,
+       IEnumerable<SerilogPropertyExpression>? expressions = null)
     {
-        var systemConf = configurationBuilder.BuildConfWithSerilogProperties(logContextPath, expressions, logPath);
+        var systemConf = configurationBuilder.BuildConfWithSerilogProperties(logContextPath,
+            logPath,             
+            expressions,
+            propertyToOutputs);
+
         return serilogConfiguration.ReadFrom.Configuration(systemConf);
     }
 }

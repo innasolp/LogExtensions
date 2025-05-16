@@ -6,51 +6,34 @@ public static class ConfigurationBuilderExtensions
 {
     public static IConfiguration BuildConfWithSerilogSourceContext(this IConfigurationBuilder configurationBuilder, string confPath, string context, string logPath)
     {
-        var sysLogConfBuilder = configurationBuilder.AddJsonFile(confPath, optional: true, reloadOnChange: true);//.AddEnvironmentVariables();
+        var sysLogConfBuilder = configurationBuilder.AddJsonFile(confPath, optional: true, reloadOnChange: true);
 
         var sysLogconf = sysLogConfBuilder.Build();
-        sysLogconf.SetSerilogLoggersFilterSourceContext(context);
-        sysLogconf.SetSerilogLoggersPath(logPath);
+        sysLogconf.SetSourceContext(context);
+        sysLogconf.SetPath(logPath);
 
         return sysLogconf;
     }
 
-    public static IConfiguration BuildConfWithSerilogFunc(this IConfigurationBuilder configurationBuilder, string confPath, string? func, string? propertyName, string? propertyValue, string logPath)
-    {
-        var sysLogConfBuilder = configurationBuilder.AddJsonFile(confPath, optional: true, reloadOnChange: true);//.AddEnvironmentVariables();
-
-        var sysLogconf = sysLogConfBuilder.Build();
-        sysLogconf.SetSerilogLoggersFilterFunc(func, propertyName, propertyValue);
-        sysLogconf.SetSerilogOutputTemplateProperty(propertyName);
-        sysLogconf.SetSerilogLoggersPath(logPath);
-
-        return sysLogconf;
-    }
-   
     public static IConfiguration BuildConfWithSerilogProperties(this IConfigurationBuilder configurationBuilder,
-        string confPath,
-        IEnumerable<SerilogPropertyExpression> expressions,
-        string logPath)
+        string confPath, 
+        string logPath,
+        IEnumerable<SerilogPropertyExpression>? expressions = null,
+        IEnumerable<string>? properties = null)
     {
-        var sysLogConfBuilder = configurationBuilder.AddJsonFile(confPath, optional: true, reloadOnChange: true);//.AddEnvironmentVariables();
+        var sysLogConfBuilder = configurationBuilder.AddJsonFile(confPath, optional: true, reloadOnChange: true);
 
-        var conf = sysLogConfBuilder.Build();
+        var sysLogconf = sysLogConfBuilder.Build(); 
+        
+        sysLogconf.SetPath(logPath);
 
-        var first = expressions.First();
-        conf.SetSerilogLoggersFilterFunc(first.Func, first.PropertyName, first.Value);
+        expressions?.ToList().ForEach(e=>sysLogconf.AddExpressionFilter(e));
 
-        foreach (var expresssion in expressions.Skip(1))
-        {
-            conf.AddSerilogExpressionFilter(expresssion);
-        }
+        if(properties != null) sysLogconf.SetOutputTemplateProperties(properties);       
 
-        var outputs = expressions.Where(e => e.SetToOutput).Select(e => e.PropertyName).ToArray();
-        conf.SetSerilogOutputTemplateProperties(outputs);
-
-        conf.SetSerilogLoggersPath(logPath);
-
-        return conf;
-    }
+        return sysLogconf;
+    }   
+    
 
     public static List<IConfiguration> GetSerilogConfs(this IConfigurationBuilder configurationBuilder, string path)
     {
@@ -58,7 +41,7 @@ public static class ConfigurationBuilderExtensions
         var jsonFiles = Directory.GetFiles(path, "*.json");
         foreach (var jsonFile in jsonFiles)
         {
-            var logConfBuilder = configurationBuilder.AddJsonFile(jsonFile, optional: true, reloadOnChange: true);//.AddEnvironmentVariables();
+            var logConfBuilder = configurationBuilder.AddJsonFile(jsonFile, optional: true, reloadOnChange: true);
             var logconf = logConfBuilder.Build();
             var serilogSection = logconf.GetSection("Serilog");
             if (serilogSection != null && serilogSection.GetChildren().Any())
