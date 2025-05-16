@@ -3,8 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog.Configuration.Extensions;
-using Serilog.Loggers;
-using Log.Interceptors.DependencyInjection;
+using Serilog.Context;
 
 namespace Serilog.ContextFileSink.Test;
 
@@ -32,7 +31,7 @@ public class SerilogContextPropertyFileSinkTest
        
         var confBuilder = _configurationBuilder.AddJsonFile(logContextPath, optional: true, reloadOnChange: true);
         var conf = confBuilder.Build();
-        conf.SetSerilogLoggersPath(["path", "pathFormat"], _logPath);
+        conf.SetPath(["path", "pathFormat"], _logPath);
         _loggerConfiguration.ReadFrom.Configuration(conf);
     }
 
@@ -44,8 +43,8 @@ public class SerilogContextPropertyFileSinkTest
         var confBuilder = _configurationBuilder.AddJsonFile(logContextPath, optional: true, reloadOnChange: true);
         var conf = confBuilder.Build();
 
-        conf.SetSerilogWriteToContextPropertyName(propertyName);
-        conf.SetSerilogLoggersPath(["path", "pathFormat"], _logPath);
+        conf.SetWriteToContextPropertyName(propertyName);
+        conf.SetPath(["path", "pathFormat"], _logPath);
 
         _loggerConfiguration.ReadFrom.Configuration(conf);
     }
@@ -63,10 +62,10 @@ public class SerilogContextPropertyFileSinkTest
     {
         var customProperty = "TestLoggerConf";
 
-        _builder.Services.AddLogInterception<TestLogger<double>>(logger =>
-        {
-            return new SerilogPropertyLogger(logger, "CustomProperty", customProperty);
-        });
+        //_builder.Services.AddLogInterception<TestLogger<double>>(logger =>
+        //{
+        //    return new SerilogPropertyLogger(logger, "CustomProperty", customProperty);
+        //});
 
         _builder.Services.AddSingleton<TestLogger<double>>(); 
         _builder.Services.AddSingleton<TestLogger<double>>();
@@ -78,10 +77,11 @@ public class SerilogContextPropertyFileSinkTest
         var app = _builder.Build();
 
         var testLoggers = app.Services.GetServices<TestLogger<double>>();
-        foreach (var testLog in testLoggers)
-        {
-            testLog.LogWarning($"Warning {DateTime.Now} ");
-        }
+        using(LogContext.PushProperty("CustomProperty", customProperty))
+            foreach (var testLog in testLoggers)
+            {
+                testLog.LogWarning($"Warning {DateTime.Now} ");
+            }
 
         var path = $"{_logPath}\\{customProperty}\\Warning";
         Assert.True(Directory.Exists(path));
@@ -93,10 +93,10 @@ public class SerilogContextPropertyFileSinkTest
     {
         var customProperty = "TestLoggerWrite";
 
-        _builder.Services.AddLogInterception<TestLogger<string>>(logger =>
-        {
-            return new SerilogPropertyLogger(logger, "CustomProperty", customProperty);
-        });
+        //_builder.Services.AddLogInterception<TestLogger<string>>(logger =>
+        //{
+        //    return new SerilogPropertyLogger(logger, "CustomProperty", customProperty);
+        //});
 
         _builder.Services.AddSingleton<TestLogger<string>>(); 
         _builder.Services.AddSingleton<TestLogger<string>>();        
@@ -116,11 +116,12 @@ public class SerilogContextPropertyFileSinkTest
         var app = _builder.Build();
 
         var testLoggers = app.Services.GetServices<TestLogger<string>>();
-        foreach (var testLog in testLoggers)
-        {
-            testLog.LogInfo($"Info {DateTime.Now} ");
-            testLog.LogWarning($"Warning {DateTime.Now} ");
-        }
+        using (LogContext.PushProperty("CustomProperty", customProperty))
+            foreach (var testLog in testLoggers)
+            {
+                testLog.LogInfo($"Info {DateTime.Now} ");
+                testLog.LogWarning($"Warning {DateTime.Now} ");
+            }
 
         var warnPath = $"{_logPath}\\{customProperty}\\Warning";
         Assert.True(Directory.Exists(warnPath));
@@ -136,10 +137,10 @@ public class SerilogContextPropertyFileSinkTest
     {
         var customProperty = "TestLoggerConfContext";
 
-        _builder.Services.AddLogInterception<TestLogger<object>>(logger =>
-        {
-            return new SerilogPropertyLogger(logger, new Dictionary<string, object>() { { "CustomProperty", customProperty }, { "TestPushProp", "push" } });
-        });
+        //_builder.Services.AddLogInterception<TestLogger<object>>(logger =>
+        //{
+        //    return new SerilogPropertyLogger(logger, new Dictionary<string, object>() { { "CustomProperty", customProperty }, { "TestPushProp", "push" } });
+        //});
 
         _builder.Services.AddSingleton<TestLogger<object>>();
         _builder.Services.AddSingleton<TestLogger<object>>();       
@@ -151,10 +152,11 @@ public class SerilogContextPropertyFileSinkTest
         var app = _builder.Build();
         
         var testLoggers = app.Services.GetServices<TestLogger<object>>();
-        foreach (var testLog in testLoggers)
-        {
-            testLog.LogWarning($"Warning {DateTime.Now} ");
-        }
+        using (LogContext.PushProperty("CustomProperty", customProperty))
+            foreach (var testLog in testLoggers)
+            {
+                testLog.LogWarning($"Warning {DateTime.Now} ");
+            }
 
         var path = $"{_logPath}\\{customProperty}\\Warning";
         Assert.True(Directory.Exists(path));
