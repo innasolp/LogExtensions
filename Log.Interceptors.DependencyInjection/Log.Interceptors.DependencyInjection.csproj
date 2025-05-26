@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<Configurations>Debug;Release;debug libs</Configurations>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Log interception dependency injection extensions</Title>
@@ -15,8 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DependencyInjection.InterceptionExtensions" Version="1.0.0" />
-    <PackageReference Include="DependencyInjection.Settings" Version="1.0.0" />
+    <PackageReference Include="DependencyInjection.InterceptionExtensions" Version="1.0.0" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
   </ItemGroup>
 
@@ -26,6 +26,17 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="set logDir=$(ProjectDir)\..\..\Libs\Log&#xD;&#xA;set outDir=%25logDir%25\Interceptors.DependencyInjection\&#xD;&#xA;if not exist &quot;%25outDir%25&quot; mkdir  &quot;%25outDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25outDir%25&quot;&#xD;&#xA;set currentDir=$(SolutionDir)\Libs\Log\Interceptors.DependencyInjection\&#xD;&#xA;if not exist &quot;%25currentDir%25&quot; mkdir  &quot;%25currentDir%25&quot;&#xD;&#xA;xcopy /E /Y  &quot;$(TargetDir)&quot; &quot;%25currentDir%25&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <PkgDependencyInjection_InterceptionExtensionsLibs Include="$(PkgDependencyInjection_InterceptionExtensions)\lib\net8.0\*.*" />
+  </ItemGroup>
+
+  <Target Name="CopyInterceptionExtensions" AfterTargets="Build">
+    <Copy SourceFiles="@(PkgDependencyInjection_InterceptionExtensionsLibs)" DestinationFolder="$(SolutionDir)\Libs\DependencyInjection" />
+  </Target>
+  <Target Name="CopyInterceptionExtensionsDependencies" AfterTargets="Build">
+    <Copy SourceFiles="@(PkgDependencyInjection_InterceptionExtensionsLibs)" DestinationFolder="$(SolutionDir)\Libs\DependencyInjection" />
   </Target>
 
 </Project>
