@@ -3,6 +3,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Sinks.File;
+using System.Collections.Concurrent;
 using System.Text;
 
 
@@ -25,7 +26,7 @@ internal class ContextPropertyFileSink(
      bool? rollOnFileSizeLimit = null,
      TimeSpan? retainedFileTimeLimit = null) : ILogEventSink
 {
-    private readonly Dictionary<string, ILogEventSink> _fileSinks = [];   
+    private readonly ConcurrentDictionary<string, ILogEventSink> _fileSinks = [];   
 
     private readonly LoggerSinkConfiguration _loggerSinkConfiguration = loggerSinkConfiguration;
 
@@ -59,7 +60,7 @@ internal class ContextPropertyFileSink(
             else
                 sink = LoggerSinkConfiguration.CreateSink(l=>l.File(path, _restrictedToMininmumLevel ?? LogEventLevel.Verbose, _outputTemplate, null,  _fileSizeLimitBytes, _loggingLevelSwitch, _buffered, false, null, _rollingInterval ?? RollingInterval.Infinite, _rollOnFileSizeLimit ?? false, _retainedFileCountLimit, _encoding, _hooks, _retainedFileTimeLimit));
 
-            _fileSinks.Add(path, sink);
+            _fileSinks.TryAdd(path, sink);
             _loggerSinkConfiguration.Sink(sink, _restrictedToMininmumLevel ?? LogEventLevel.Verbose, _loggingLevelSwitch);
         }
 
