@@ -5,7 +5,7 @@ namespace Serilog.Configuration.Extensions;
 
 public record ContextProperty (string Name);
 
-public class SerilogPropertyExpression
+public class PropertyExpression
 {
     public string? Func { get; }
 
@@ -13,14 +13,14 @@ public class SerilogPropertyExpression
 
     public object[]? Parameters { get; }
 
-    public SerilogPropertyExpression(SerilogFunc serilogFunc, object[]? parameters = null)
+    public PropertyExpression(SerilogFunc serilogFunc, object[]? parameters = null)
     {
         SerilogFunc = serilogFunc;
         Func = Enum.GetName(serilogFunc);
         Parameters = parameters;
     }
 
-    public SerilogPropertyExpression(string func, object[]? parameters = null)        
+    public PropertyExpression(string func, object[]? parameters = null)        
     {
         Func = func;
 
@@ -30,22 +30,25 @@ public class SerilogPropertyExpression
         Parameters = parameters;
     }
 
-    public SerilogPropertyExpression(string func, object value)
+    public PropertyExpression(string func, object value)
         :this(func,  [value])
     {}
 
-    public SerilogPropertyExpression(SerilogFunc serilogFunc, object value)
+    public PropertyExpression(SerilogFunc serilogFunc, object value)
         : this(serilogFunc, [value])
     { }
 
 
-    private static string GetFormatted(object? value)
+    private static string GetFormattedValue(object? value)
     {
         if (value is ContextProperty contextProperty) return contextProperty.Name;
 
-        return value == null ? "null" :
-            (value.GetType().GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISignedNumber<>))
-             ? value.ToString() : $"'{value}'");
+        return value != null ? (IsNumeric(value.GetType()) ? value.ToString() : $"'{value}'") : "null";
+    }
+
+    private static bool IsNumeric(Type type)
+    {
+        return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISignedNumber<>));
     }
 
     public string GetExpression()
@@ -65,10 +68,10 @@ public class SerilogPropertyExpression
                 serilogFuncParameters?.RequiredParametersCount
                 ?? serilogFuncParameters?.OptionalParametersCount ?? 0);
 
-            return $"{Func}({(takeValues?.Count() > 0 ? string.Join(",", takeValues.Select(GetFormatted)) : string.Empty)})";
+            return $"{Func}({(takeValues?.Count() > 0 ? string.Join(",", takeValues.Select(GetFormattedValue)) : string.Empty)})";
         }
         else if (Parameters?.Length == 2)
-            return $"{GetFormatted(Parameters?[0])}{Func}{GetFormatted(Parameters?[1])}";
+            return $"{GetFormattedValue(Parameters?[0])}{Func}{GetFormattedValue(Parameters?[1])}";
 
         throw new InvalidOperationException($@"Invalid serilog expression: {Func}   
                     [ {(Parameters?.Length > 0 ? string.Join(",", Parameters) : "empty parameters")}]");
