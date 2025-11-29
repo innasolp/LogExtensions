@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	<Configurations>Debug;Release;debug libs</Configurations>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Version>1.0.0.2</Version>
+    <Version>1.0.0.3</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Serilog configuration extensions</Title>
     <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
@@ -36,6 +36,8 @@
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+	<PackageReference Include="CustomJsonConfigurationProvider" Version="1.0.0.1" />
+	<PackageReference Include="CustomConfigurationProvider" Version="1.0.0.1" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
