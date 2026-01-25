@@ -2,19 +2,19 @@
 
 namespace Log.Interceptors;
 
-public abstract class LogInterceptionFactory(ILoggerFactory loggerFactory) : ILoggerFactory
+public abstract class LogInterceptionFactory(ILoggerFactory coreLoggerFactory) : ILoggerFactory
 {
-    protected ILoggerFactory LoggerFactory { get; } = loggerFactory;
+    protected ILoggerFactory CoreLoggerFactory { get; } = coreLoggerFactory;
     
     public void AddProvider(ILoggerProvider provider)
     {
-        LoggerFactory.AddProvider(provider);
+        CoreLoggerFactory.AddProvider(provider);
     }
 
     public abstract ILogger CreateLogger(string categoryName);
 
     public virtual void Dispose()
     {
-        LoggerFactory.Dispose();
+        CoreLoggerFactory.Dispose();
     }
 }

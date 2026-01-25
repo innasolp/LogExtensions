@@ -36,7 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Log.Interceptors.DependencyInjection\Log.Interceptors.DependencyInjection.csproj" />
     <ProjectReference Include="..\SeriLog.Configuration.Extensions\Serilog.Configuration.Extensions.csproj" />
     <ProjectReference Include="..\Serilog.ContextFileSink\Serilog.ContextFileSink.csproj" />
   </ItemGroup>
