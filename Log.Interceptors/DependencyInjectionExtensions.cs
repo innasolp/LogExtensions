@@ -1,4 +1,4 @@
-﻿using DependencyInjection.Interception;
+﻿using DependencyInjection.InterceptionExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
