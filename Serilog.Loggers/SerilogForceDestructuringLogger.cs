@@ -12,26 +12,49 @@ public class SerilogForceDestructuringLogger(Microsoft.Extensions.Logging.ILogge
         if(state is IEnumerable<KeyValuePair<string, object?>> values)
         {
             var originalFormat = values.FirstOrDefault(v => v.Key == OriginalFormatKey && v.Value != null).Value?.ToString();
-            if(originalFormat is null)
+            if (originalFormat is null)
+            {
                 base.Log(logLevel, eventId, state, exception, formatter);
+                return;
+            }
 
-            var destructuringParameters = values.Where(v => v.Value is not string && v.Value?.GetType().IsPrimitive == false);
+            var paramsNeedDestructuring = values.Where(v => v.Value is not null && v.Value.ToString()?.Contains('@') == false
+                     && IsTypeDestructuring(v.Value.GetType()));
+            if (!paramsNeedDestructuring.Any())
+            {
+                base.Log(logLevel, eventId, state, exception, formatter);
+                return;
+            }
+
+            var formattingValues = new List<KeyValuePair<string, object?>>(values);
 
             var destructuringFormat = originalFormat;
-            foreach(var destructuringParameter in destructuringParameters)
+            foreach(var destructuringParameter in paramsNeedDestructuring)
             {
-                destructuringFormat = destructuringFormat.Replace($"{{{destructuringParameter.Key}}}",
-                    $"{{@{destructuringParameter.Key}}}");
+                var initialKey = $"{{{destructuringParameter.Key}}}";
+                var destructuringKey = $"{{@{destructuringParameter.Key}}}";
+                destructuringFormat = destructuringFormat.Replace(initialKey, destructuringKey);
+
+                var formattingValue = formattingValues.First(f => f.Key == destructuringParameter.Key);
+                var index = formattingValues.IndexOf(formattingValue,0);
+                formattingValues[index] = new KeyValuePair<string, object?>($"@{destructuringParameter.Key}", formattingValue.Value);
             }
 
             var customLogValueFormatter = new CustomLogValuesFormatter(destructuringFormat);
 
-            base.Log(logLevel, eventId, values, exception, (state, ex) =>
+            base.Log(logLevel, eventId, formattingValues, exception, (state, ex) =>
             {
-                return customLogValueFormatter.Format([.. values.Where(v=>v.Key != OriginalFormatKey).Select(f=>f.Value)]);
+                return customLogValueFormatter.Format([.. state.Where(v=>v.Key != OriginalFormatKey).Select(f=>f.Value)]);
             });
         }
         else 
             base.Log(logLevel, eventId, state, exception, formatter);
+    }
+
+    private static bool IsTypeDestructuring(Type type)
+    {
+        return !type.IsPrimitive && type != typeof(string) && !type.IsEnum
+            && (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>)
+            || (!Nullable.GetUnderlyingType(type)?.IsPrimitive == false && Nullable.GetUnderlyingType(type) != typeof(string)));
     }
 }
