@@ -2,23 +2,23 @@
 
 namespace Log.Interceptors;
 
-public abstract class LogInterceptor(ILogger logger) : ILogger
+public abstract class LogInterceptor(ILogger coreLogger) : ILogger
 {
-    protected ILogger Logger { get; } = logger;
+    protected ILogger CoreLogger { get; } = coreLogger;
 
     public virtual IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
-        return Logger.BeginScope(state);
+        return CoreLogger.BeginScope(state);
     }
 
     public virtual bool IsEnabled(LogLevel logLevel)
     {
-        return Logger.IsEnabled(logLevel);
+        return CoreLogger.IsEnabled(logLevel);
     }
 
     public virtual void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        Logger.Log(logLevel, eventId, state, exception, formatter);
+        CoreLogger.Log(logLevel, eventId, state, exception, formatter);
     }
 }
 
