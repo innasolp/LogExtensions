@@ -15,15 +15,22 @@ public class SerilogUrlLogger(Microsoft.Extensions.Logging.ILogger logger) : Log
         }
 
         var url = logValues.FirstOrDefault(lv => lv.Value is Uri ||
-        lv.Key.Equals("uri", StringComparison.CurrentCultureIgnoreCase) || lv.Key.Equals("url", StringComparison.CurrentCultureIgnoreCase));
+        lv.Key.Equals("uri", StringComparison.CurrentCultureIgnoreCase)
+        || lv.Key.Equals("url", StringComparison.CurrentCultureIgnoreCase)
+        || (lv.Value != null && Uri.TryCreate(lv.Value.ToString(), UriKind.Absolute, out _)));
 
-        if (string.IsNullOrEmpty(url.Key))
-            url = logValues.FirstOrDefault(lv => lv.Value != null && Uri.TryCreate(lv.Value.ToString(), UriKind.Absolute, out Uri? uri));
-
-        if (string.IsNullOrEmpty(url.Key))
+        if (string.IsNullOrEmpty(url.Key) || url.Value is null)
+        {
             base.Log(logLevel, eventId, state, exception, formatter);
+            return;
+        }
 
-        var uri = new Uri(url.Value.ToString());
+        if( !Uri.TryCreate(url.Value.ToString(), UriKind.Absolute, out Uri? uri) || uri is null || !uri.IsAbsoluteUri)
+        {
+            base.Log(logLevel, eventId, state, exception, formatter);
+            return;
+        }
+
         var baseUrl = $"{uri.Scheme}://{uri.Host}" + (!uri.IsDefaultPort ? $":{uri.Port}" : "");
 
         using (LogContext.PushProperty("Url", baseUrl))

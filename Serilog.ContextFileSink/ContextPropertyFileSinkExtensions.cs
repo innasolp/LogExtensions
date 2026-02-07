@@ -30,9 +30,10 @@ public static class ContextPropertyFileSinkExtensions
         FileLifecycleHooks? hooks = null,
         TimeSpan? retainedFileTimeLimit = null)
     {
-        if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
-        if (pathFormat == null) throw new ArgumentNullException(nameof(pathFormat));
-        if (outputTemplate == null) throw new ArgumentNullException(nameof(outputTemplate));
+        ArgumentNullException.ThrowIfNull(sinkConfiguration);
+        ArgumentNullException.ThrowIfNull(pathFormat);
+        ArgumentNullException.ThrowIfNull(outputTemplate);
+        ArgumentNullException.ThrowIfNull(propertyName);
 
         var formatter = new MessageTemplateTextFormatter(outputTemplate, formatProvider);
         var sink = new ContextPropertyFileSink(sinkConfiguration, propertyName,pathFormat, formatter,  restrictedToMinimumLevel, fileSizeLimitBytes,
