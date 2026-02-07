@@ -33,6 +33,7 @@ public static class ContextPropertyFileSinkExtensions
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
         ArgumentNullException.ThrowIfNull(pathFormat);
         ArgumentNullException.ThrowIfNull(outputTemplate);
+        ArgumentNullException.ThrowIfNull(propertyName);
 
         var formatter = new MessageTemplateTextFormatter(outputTemplate, formatProvider);
         var sink = new ContextPropertyFileSink(sinkConfiguration, propertyName,pathFormat, formatter,  restrictedToMinimumLevel, fileSizeLimitBytes,
