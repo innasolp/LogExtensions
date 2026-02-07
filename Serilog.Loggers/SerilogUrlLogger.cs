@@ -20,10 +20,13 @@ public class SerilogUrlLogger(Microsoft.Extensions.Logging.ILogger logger) : Log
         if (string.IsNullOrEmpty(url.Key))
             url = logValues.FirstOrDefault(lv => lv.Value != null && Uri.TryCreate(lv.Value.ToString(), UriKind.Absolute, out Uri? uri));
 
-        if (string.IsNullOrEmpty(url.Key))
+        if (string.IsNullOrEmpty(url.Key) || url.Value is null)
+        {
             base.Log(logLevel, eventId, state, exception, formatter);
+            return;
+        }
 
-        var uri = new Uri(url.Value.ToString());
+        var uri = new Uri(url.Value.ToString()!, UriKind.Absolute);
         var baseUrl = $"{uri.Scheme}://{uri.Host}" + (!uri.IsDefaultPort ? $":{uri.Port}" : "");
 
         using (LogContext.PushProperty("Url", baseUrl))
