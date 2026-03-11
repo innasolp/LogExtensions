@@ -12,11 +12,6 @@ internal class ContextPropertyNameRule(string contextPropertyName) : CustomOrdin
            value?.Contains(ContextVariables.PropertyNameContextStr) == true;
     }
 
-    public string TransformValue(string value)
-    {
-        return value.Replace(ContextVariables.PropertyNameContextStr, _contextPropertyName);
-    }
-
     protected override string? GetValue(string? value)
     {
         return value?.Replace(ContextVariables.PropertyNameContextStr, _contextPropertyName);
