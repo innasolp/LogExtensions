@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	<Configurations>Debug;Release;debug libs</Configurations>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Version>1.0.0.3</Version>
+    <Version>1.0.0.4</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Serilog configuration extensions</Title>
     <PackageOutputPath>$(SolutionDir)\packages</PackageOutputPath>
@@ -17,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="CustomJsonConfigurationProvider" Version="1.0.0.2" />
-	<PackageReference Include="CustomConfigurationProvider" Version="1.0.0.2" />
+	<PackageReference Include="CustomJsonConfigurationProvider" Version="1.0.1" />
+	<PackageReference Include="CustomConfigurationProvider" Version="1.0.1" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
