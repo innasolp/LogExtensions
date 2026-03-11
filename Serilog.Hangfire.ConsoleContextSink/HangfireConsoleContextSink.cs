@@ -23,7 +23,7 @@ public class HangfireConsoleContextSink(
         if (HangfireConsoleContext.Current == null)
             return;
 
-        if (logEvent.Level < restrictedToMininmumLevel)
+        if (restrictedToMininmumLevel.HasValue && logEvent.Level < restrictedToMininmumLevel.Value)
             return;
 
         if (contextProperties == null != (jobParameters == null))
