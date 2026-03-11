@@ -1,12 +1,11 @@
-﻿using CustomConfigurationProvider.Rules;
+﻿using CustomConfigurationProvider;
 
 namespace Serilog.Configuration.Extensions.ConfigurationRules;
 
-internal class OutputTemplateRule(IEnumerable<string> properties) : CustomOrdinaryRule
+internal class OutputTemplateRule(IEnumerable<string> properties) : ICustomConfigurationRule
 {
     private readonly IEnumerable<string> _properties = properties;
-    
-    public override bool Check(IDictionary<string, string?> data, string sectionName, string? value)
+    public bool Check(string sectionName, string value)
     {
         return sectionName.Contains($"{WriteToSections.WriteToSectionName}:")
             && sectionName.Contains($"Args:{WriteToSections.ConfigureLoggerSectionName}:{WriteToSections.WriteToSectionName}")
@@ -14,9 +13,9 @@ internal class OutputTemplateRule(IEnumerable<string> properties) : CustomOrdina
             && value?.Contains(ContextVariables.PropertyNameContextStr) == true;
     }
 
-    protected override string? GetValue(string? value)
+    public string TransformValue(string value)
     {
         var propertyString = string.Join(" ", _properties.Select(p => $"{p}"));
-        return value?.Replace(ContextVariables.PropertyNameContextStr, propertyString);
+        return value.Replace(ContextVariables.PropertyNameContextStr, propertyString);
     }
 }
