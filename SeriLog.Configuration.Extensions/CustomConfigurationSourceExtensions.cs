@@ -32,9 +32,9 @@ public static class CustomConfigurationSourceExtensions
         configurationSource.AddCustomConfigurationRule(new PropertyExpressionFilterRule(propertyExpression));
     }
 
-    public static void AddLogPathRule(this ICustomConfigurationSource configurationSource,  string logPath, string[]? pathSections = null)
+    public static void AddLogPathRule(this ICustomConfigurationSource configurationSource,  string logPath)
     {
-        configurationSource.AddCustomConfigurationRule(new LogPathRule(logPath, pathSections));
+        configurationSource.AddCustomConfigurationRule(new LogPathRule(logPath));
     }
 
     public static void AddContextPropertyNameRule(this ICustomConfigurationSource configurationSource, string propertyName)
