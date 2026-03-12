@@ -14,17 +14,13 @@ public static class HangfireConsoleContextSinkExtensions
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
         string outputTemplate = DefaultOutputTemplate,
         IFormatProvider? formatProvider = null,
-        Encoding? encoding = null,
-        string[]? contextProperties = null,
-        string[]? jobParameters = null)
+        Encoding? encoding = null)
     {
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
-        ArgumentNullException.ThrowIfNull(outputTemplate);
-
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        ArgumentNullException.ThrowIfNull(outputTemplate);        
 
         var formatter = new MessageTemplateTextFormatter(outputTemplate, formatProvider);
-        var sink = new HangfireConsoleContextSink(formatter, restrictedToMinimumLevel, encoding, contextProperties, jobParameters);
+        var sink = new HangfireConsoleContextSink(formatter, restrictedToMinimumLevel, encoding);
         return sinkConfiguration.Sink(sink);
     }
 }
