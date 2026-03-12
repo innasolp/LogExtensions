@@ -11,7 +11,13 @@ public class HangfireConsoleContextSink(
     LogEventLevel? restrictedToMininmumLevel,
     Encoding? encoding) : ILogEventSink
 {
-    private static readonly Encoding DefaultEncoding = Encoding.GetEncoding("windows-1251");
+    private static readonly Encoding DefaultEncoding;
+
+    static HangfireConsoleContextSink()
+    {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        DefaultEncoding = Encoding.GetEncoding("windows-1251");
+    }
 
     public void Emit(LogEvent logEvent)
     {

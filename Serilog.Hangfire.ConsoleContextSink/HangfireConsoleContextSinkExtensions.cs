@@ -17,9 +17,7 @@ public static class HangfireConsoleContextSinkExtensions
         Encoding? encoding = null)
     {
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
-        ArgumentNullException.ThrowIfNull(outputTemplate);
-
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        ArgumentNullException.ThrowIfNull(outputTemplate);        
 
         var formatter = new MessageTemplateTextFormatter(outputTemplate, formatProvider);
         var sink = new HangfireConsoleContextSink(formatter, restrictedToMinimumLevel, encoding);
