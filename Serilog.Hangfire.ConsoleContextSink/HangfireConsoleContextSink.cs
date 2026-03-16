@@ -9,7 +9,8 @@ namespace Serilog.HangfireConsoleContextSink;
 public class HangfireConsoleContextSink(
     ITextFormatter textFormatter,
     LogEventLevel? restrictedToMininmumLevel,
-    Encoding? encoding) : ILogEventSink
+    Encoding? encoding,
+    Dictionary<string, object>? allowedСontextProperties =  null) : ILogEventSink
 {
     private static readonly Encoding DefaultEncoding;
 
@@ -25,6 +26,11 @@ public class HangfireConsoleContextSink(
             return;
 
         if (restrictedToMininmumLevel.HasValue && logEvent.Level < restrictedToMininmumLevel.Value)
+            return;
+
+        if (allowedСontextProperties?.All(acp => logEvent.Properties.TryGetValue(acp.Key, out var propertyValue)
+            && propertyValue is ScalarValue scalarValue && scalarValue != null
+            && scalarValue.Value?.ToString() == acp.Value.ToString()) != true)
             return;
 
         HangfireConsoleContext.Current?.WriteLine(GetFormattedLogMessage(logEvent, encoding ?? DefaultEncoding));
