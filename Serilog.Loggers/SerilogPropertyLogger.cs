@@ -18,10 +18,15 @@ public class SerilogPropertyLogger(Microsoft.Extensions.Logging.ILogger logger, 
     {
         var disposables = _properties.Select(p => LogContext.PushProperty(p.Key, p.Value)).ToImmutableArray();
 
-        base.Log(logLevel, eventId, state, exception, formatter);
-
-        foreach (var disposable in disposables)
-            disposable.Dispose();
+        try
+        {
+            base.Log(logLevel, eventId, state, exception, formatter);
+        }
+        finally
+        {
+            foreach (var disposable in disposables)
+                disposable.Dispose();
+        }
     }
 }
 

@@ -52,7 +52,7 @@ public class SerilogContextPropertyFileSinkTest
         _builder.Services.AddSingleton<TestLogger<double>>(); 
         _builder.Services.AddSingleton<TestLogger<double>>();
 
-        var serilogConfiguration = BuildSerilogConfiguraion("log.customproperty.json", [(source) => source.AddLogPathRule(logPath, ["path", "pathFormat"])]);
+        var serilogConfiguration = BuildSerilogConfiguraion("log.customproperty.json", [(source) => source.AddLogPathRule(logPath)]);
         SetSerilog(_builder.Logging);
 
         var app = _builder.Build();
@@ -119,7 +119,7 @@ public class SerilogContextPropertyFileSinkTest
 
         var serilogConfiguration = BuildSerilogConfiguraion("log.contextproperty.json", 
             [
-            (source) => source.AddLogPathRule(logPath,["path", "pathFormat"]),
+            (source) => source.AddLogPathRule(logPath),
             (source) => source.AddContextPropertyNameRule("CustomProperty")
             ]);
         SetSerilog(_builder.Logging);
