@@ -12,19 +12,22 @@ public class SerilogAssemblyResourcePropertyLogger : LogInterceptor
 {
     private const string OriginalFormatKey = "{OriginalFormat}";
 
-    private readonly Dictionary<string, ResourceManager> _resourceManagers = [];
-
     private readonly Dictionary<string, string> _messageFormatsResourceKeys = [];
 
-    private readonly Dictionary<string, Dictionary<string, object>> _resourceProperties;
+    private readonly IReadOnlyDictionary<string, Dictionary<string, object>> _resourceProperties;
 
     public SerilogAssemblyResourcePropertyLogger(Microsoft.Extensions.Logging.ILogger coreLogger,
-        Dictionary<string, Assembly> assemblyResources, Dictionary<string, Dictionary<string, object>> resourceProperties) : base(coreLogger)
+        IReadOnlyDictionary<string, Assembly> assemblyResources,
+        IReadOnlyDictionary<string, Dictionary<string, object>> resourceProperties) : base(coreLogger)
     {
         foreach (var assemblyResource in assemblyResources)
         {
-            var resourceManager = new ResourceManager(assemblyResource.Key,assemblyResource.Value);
-            _resourceManagers.TryAdd(assemblyResource.Key, resourceManager);
+            var resourceManager = new ResourceManager(assemblyResource.Key, assemblyResource.Value);
+            var stringEntries = resourceManager.GetResourceSet(System.Globalization.CultureInfo.InvariantCulture, true, false)?
+                          .OfType<DictionaryEntry>().Where(r => r.Value is not null && r.Value is string) ?? [];
+
+            foreach (var entry in stringEntries)
+                _messageFormatsResourceKeys.TryAdd(entry.Value!.ToString()!, assemblyResource.Key);
         }
 
         _resourceProperties = resourceProperties;
@@ -47,19 +50,8 @@ public class SerilogAssemblyResourcePropertyLogger : LogInterceptor
 
         if (!_messageFormatsResourceKeys.TryGetValue(originalFormat, out var resourceKey) || string.IsNullOrEmpty(resourceKey))
         {
-            resourceKey = _resourceManagers
-                .FirstOrDefault(m => 
-                      m.Value.GetResourceSet(System.Globalization.CultureInfo.InvariantCulture, true, false)?
-                      .OfType<DictionaryEntry>()
-                      .Any(r => r.Value is string messageFormat && messageFormat == originalFormat) == true).Key;
-
-            if (!string.IsNullOrEmpty(resourceKey))
-                _messageFormatsResourceKeys.TryAdd(originalFormat, resourceKey);
-            else
-            {
-                base.Log(logLevel, eventId, state, exception, formatter);
-                return;
-            }
+            base.Log(logLevel, eventId, state, exception, formatter);
+            return;
         }
 
         if (!_resourceProperties.TryGetValue(resourceKey, out var properties) || properties?.Any() != true)
@@ -70,16 +62,21 @@ public class SerilogAssemblyResourcePropertyLogger : LogInterceptor
 
         var disposables = properties.Select(p => LogContext.PushProperty(p.Key, p.Value)).ToImmutableArray();
 
-        base.Log(logLevel, eventId, state, exception, formatter);
-
-        foreach (var disposable in disposables)
-            disposable.Dispose();
+        try
+        {
+            base.Log(logLevel, eventId, state, exception, formatter);
+        }
+        finally
+        {
+            foreach (var disposable in disposables)
+                disposable.Dispose();
+        }
     }
 }
 
-public class SerilogAssemblyResourcePropertyLogger<T>(Microsoft.Extensions.Logging.ILogger coreLogger, 
+public class SerilogAssemblyResourcePropertyLogger<T>(Microsoft.Extensions.Logging.ILogger coreLogger,
     Dictionary<string, Assembly> assemblyResources,
-    Dictionary<string, Dictionary<string, object>> resourceProperties) 
+    Dictionary<string, Dictionary<string, object>> resourceProperties)
     : SerilogAssemblyResourcePropertyLogger(coreLogger, assemblyResources, resourceProperties), ILogger<T>
 {
 }
