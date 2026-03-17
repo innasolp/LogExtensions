@@ -29,8 +29,8 @@ public class HangfireConsoleContextSink(
             return;
 
         if (allowedСontextProperties?.All(acp => logEvent.Properties.TryGetValue(acp.Key, out var propertyValue)
-            && propertyValue is ScalarValue scalarValue && scalarValue != null
-            && scalarValue.Value?.ToString() == acp.Value.ToString()) != true)
+            && propertyValue is ScalarValue scalarValue
+            && scalarValue?.Value?.ToString()?.Equals(acp.Value.ToString(), StringComparison.InvariantCultureIgnoreCase) == true) != true)
             return;
 
         HangfireConsoleContext.Current?.WriteLine(GetFormattedLogMessage(logEvent, encoding ?? DefaultEncoding));
