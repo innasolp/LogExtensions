@@ -48,8 +48,10 @@ public class SerilogAssemblyResourcePropertyLogger : LogInterceptor
         if (!_messageFormatsResourceKeys.TryGetValue(originalFormat, out var resourceKey) || string.IsNullOrEmpty(resourceKey))
         {
             resourceKey = _resourceManagers
-                .SelectMany(m => m.Value.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, false, false)?.OfType<DictionaryEntry>() ?? [])
-                .FirstOrDefault(r => r.Value is string messageFormat && messageFormat == originalFormat).Value as string;
+                .FirstOrDefault(m => 
+                      m.Value.GetResourceSet(System.Globalization.CultureInfo.InvariantCulture, true, false)?
+                      .OfType<DictionaryEntry>()
+                      .Any(r => r.Value is string messageFormat && messageFormat == originalFormat) == true).Key;
 
             if (!string.IsNullOrEmpty(resourceKey))
                 _messageFormatsResourceKeys.TryAdd(originalFormat, resourceKey);
