@@ -15,13 +15,13 @@ public static class HangfireConsoleContextSinkExtensions
         string outputTemplate = DefaultOutputTemplate,
         IFormatProvider? formatProvider = null,
         Encoding? encoding = null,
-        Dictionary<string, object>? allowedСontextProperties = null)
+        Dictionary<string, object>? allowedContextProperties = null)
     {
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
         ArgumentNullException.ThrowIfNull(outputTemplate);        
 
         var formatter = new MessageTemplateTextFormatter(outputTemplate, formatProvider);
-        var sink = new HangfireConsoleContextSink(formatter, restrictedToMinimumLevel, encoding, allowedСontextProperties);
+        var sink = new HangfireConsoleContextSink(formatter, restrictedToMinimumLevel, encoding, allowedContextProperties);
         return sinkConfiguration.Sink(sink);
     }
 }
