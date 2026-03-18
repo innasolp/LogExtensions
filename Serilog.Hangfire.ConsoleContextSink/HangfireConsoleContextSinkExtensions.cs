@@ -24,4 +24,19 @@ public static class HangfireConsoleContextSinkExtensions
         var sink = new HangfireConsoleContextSink(formatter, restrictedToMinimumLevel, encoding, allowedContextProperties);
         return sinkConfiguration.Sink(sink);
     }
+
+    public static LoggerConfiguration HangfireAggregateConsoleContext(
+        this LoggerSinkConfiguration sinkConfiguration,
+        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        string outputTemplate = DefaultOutputTemplate,
+        IFormatProvider? formatProvider = null,
+        Encoding? encoding = null)
+    {
+        ArgumentNullException.ThrowIfNull(sinkConfiguration);
+        ArgumentNullException.ThrowIfNull(outputTemplate);        
+
+        var formatter = new MessageTemplateTextFormatter(outputTemplate, formatProvider);
+        var sink = new HangfireConsoleAggregateContextSink(formatter, restrictedToMinimumLevel, encoding);
+        return sinkConfiguration.Sink(sink);
+    }
 }

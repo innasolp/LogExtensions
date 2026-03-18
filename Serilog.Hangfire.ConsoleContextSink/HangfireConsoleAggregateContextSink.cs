@@ -6,15 +6,16 @@ using System.Text;
 
 namespace Serilog.HangfireConsoleContextSink;
 
-public class HangfireConsoleContextSink(
+public class HangfireConsoleAggregateContextSink(
     ITextFormatter textFormatter,
     LogEventLevel? restrictedToMininmumLevel,
-    Encoding? encoding,
-    Dictionary<string, object>? allowedContextProperties =  null) : ILogEventSink
+    Encoding? encoding) : ILogEventSink
 {
     private static readonly Encoding DefaultEncoding;
 
-    static HangfireConsoleContextSink()
+    private const string IdJobParameter = "id";
+
+    static HangfireConsoleAggregateContextSink()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         DefaultEncoding = Encoding.GetEncoding("windows-1251");
@@ -28,11 +29,12 @@ public class HangfireConsoleContextSink(
         if (restrictedToMininmumLevel.HasValue && logEvent.Level < restrictedToMininmumLevel.Value)
             return;
 
-        if (allowedContextProperties != null && !allowedContextProperties.All(acp => logEvent.Properties.TryGetValue(acp.Key, out var propertyValue)
-            && propertyValue is ScalarValue scalarValue
-            && scalarValue?.Value?.ToString()?.Equals(acp.Value?.ToString(), StringComparison.InvariantCultureIgnoreCase) == true))
-            return;
+        var id = HangfireConsoleContext.Current.GetJobParameter<string>(IdJobParameter);        
+        var outputPerformContext = !string.IsNullOrEmpty(id) && AggregateConsoleContextStore.TryGetPerformContext(id, out var performContext) && performContext != null
+            ? performContext
+            : HangfireConsoleContext.Current;
 
-        HangfireConsoleContext.Current?.WriteLine(Helper.GetFormattedLogMessage(textFormatter, logEvent, encoding ?? DefaultEncoding));
+         var message = Helper.GetFormattedLogMessage(textFormatter, logEvent, encoding ?? DefaultEncoding);
+         outputPerformContext.WriteLine(message);
     }
 }
