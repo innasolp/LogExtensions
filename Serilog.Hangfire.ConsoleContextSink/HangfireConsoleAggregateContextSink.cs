@@ -6,14 +6,16 @@ using System.Text;
 
 namespace Serilog.HangfireConsoleContextSink;
 
-public class HangfireConsoleContextSink(
+public class HangfireConsoleAggregateContextSink(
     ITextFormatter textFormatter,
     LogEventLevel? restrictedToMininmumLevel,
     Encoding? encoding) : ILogEventSink
 {
     private static readonly Encoding DefaultEncoding;
 
-    static HangfireConsoleContextSink()
+    private const string IdJobParameter = "id";
+
+    static HangfireConsoleAggregateContextSink()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         DefaultEncoding = Encoding.GetEncoding("windows-1251");
@@ -27,6 +29,12 @@ public class HangfireConsoleContextSink(
         if (restrictedToMininmumLevel.HasValue && logEvent.Level < restrictedToMininmumLevel.Value)
             return;
 
-        HangfireConsoleContext.Current?.WriteLine(Helper.GetFormattedLogMessage(textFormatter, logEvent, encoding ?? DefaultEncoding));
+        var id = HangfireConsoleContext.Current.GetJobParameter<string>(IdJobParameter);        
+        var outputPerformContext = !string.IsNullOrEmpty(id) && AggregateConsoleContextStore.TryGetPerformContext(id, out var performContext) && performContext != null
+            ? performContext
+            : HangfireConsoleContext.Current;
+
+         var message = Helper.GetFormattedLogMessage(textFormatter, logEvent, encoding ?? DefaultEncoding);
+         outputPerformContext.WriteLine(message);
     }
 }
