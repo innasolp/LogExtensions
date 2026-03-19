@@ -2,7 +2,7 @@
 
 namespace Serilog.HangfireConsoleContextSink;
 
-public static class HangfireConfigurationextensions
+public static class HangfireConfigurationExtensions
 {
     public static void AddConsoleContextFilter(this IGlobalConfiguration config)
     {

@@ -12,26 +12,6 @@ internal class AggregateConsoleContextStoreFilter(string idPropertyName = Aggreg
 
     private const string IdJobParameter = "id";
 
-    //public void OnPerforming(PerformingContext filterContext)
-    //{
-    //    var id = filterContext.GetJobParameter<string>(idPropertyName);
-    //    if (string.IsNullOrEmpty(id)) return;
-
-    //    var isAggregate = filterContext.GetJobParameter<bool>(isAggregatePropertyName);
-
-    //    if (isAggregate)
-    //    {
-    //        AggregateConsoleContextStore.TryAddAggregatePerformContext(id, filterContext);
-
-    //        return;
-    //    }
-
-    //    var parentId = filterContext.GetJobParameter<string>(parentIdPropertyName);
-
-    //    if(!string.IsNullOrEmpty(parentId))        
-    //        AggregateConsoleContextStore.SetParentPerformContextIfNeed(id, parentId);        
-    //}
-
     public override void OnPerforming(PerformingContext filterContext)
     {
         base.OnPerforming(filterContext);
