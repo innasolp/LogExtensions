@@ -9,15 +9,15 @@ internal static class AggregateConsoleContextStore
 
     private static readonly ConcurrentDictionary<string, PerformContext> _parentPerformContexts = [];
 
-    public static bool TryAddAggregatePerformContext(string aggregateId, PerformContext context)
+    public static bool TrySetAggregatePerformContext(string aggregateId, PerformContext context)
     {
-        if (!_aggregatePerformContexts.ContainsKey(aggregateId))
+        if (!_aggregatePerformContexts.TryAdd(aggregateId, context))
         {
             _aggregatePerformContexts[aggregateId] = context;
             return true;
         }
-
-        return _aggregatePerformContexts.TryAdd(aggregateId, context);
+        
+        return true;
     }
 
     public static bool TryGetAggregatePerformContext(string aggregateId, out PerformContext? context)
@@ -30,10 +30,8 @@ internal static class AggregateConsoleContextStore
         if (!string.IsNullOrEmpty(parentId) &&
             _aggregatePerformContexts.TryGetValue(parentId, out PerformContext? parentPerformContext) && parentPerformContext != null)
         {
-            if(!_parentPerformContexts.ContainsKey(id))
-                _aggregatePerformContexts[id] = parentPerformContext;
-            else  
-                _aggregatePerformContexts.TryAdd(id, parentPerformContext);
+            if(!_parentPerformContexts.TryAdd(id, parentPerformContext))
+                _parentPerformContexts[id] = parentPerformContext;
         }
     }
 
@@ -46,6 +44,17 @@ internal static class AggregateConsoleContextStore
 
         if (_parentPerformContexts.ContainsKey(id))
             return _parentPerformContexts.TryGetValue(id, out context);
+
+        return false;
+    }
+
+    public static bool TryRemovePerformContext(string id)
+    {
+        if (_aggregatePerformContexts.ContainsKey(id))
+            return _aggregatePerformContexts.TryRemove(id, out var context);
+
+        if (_parentPerformContexts.ContainsKey(id))
+            return _parentPerformContexts.TryRemove(id, out var context);
 
         return false;
     }
