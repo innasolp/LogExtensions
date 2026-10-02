@@ -10,8 +10,6 @@ namespace Serilog.Loggers;
 
 public class SerilogAssemblyResourcePropertyLogger : LogInterceptor
 {
-    private const string OriginalFormatKey = "{OriginalFormat}";
-
     private readonly Dictionary<string, string> _messageFormatsResourceKeys = [];
 
     private readonly IReadOnlyDictionary<string, Dictionary<string, object>> _resourceProperties;
@@ -35,20 +33,17 @@ public class SerilogAssemblyResourcePropertyLogger : LogInterceptor
 
     public override void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (state is not IEnumerable<KeyValuePair<string, object?>> values)
+        if (state == null)
         {
             base.Log(logLevel, eventId, state, exception, formatter);
             return;
         }
 
-        var originalFormat = values.FirstOrDefault(v => v.Key == OriginalFormatKey && v.Value != null).Value?.ToString();
-        if (string.IsNullOrEmpty(originalFormat))
-        {
-            base.Log(logLevel, eventId, state, exception, formatter);
-            return;
-        }
+        var originalFormat = FormattedLogValuesAccessor.ExtractOriginalFormat(state);
 
-        if (!_messageFormatsResourceKeys.TryGetValue(originalFormat, out var resourceKey) || string.IsNullOrEmpty(resourceKey))
+        if (string.IsNullOrEmpty(originalFormat) 
+            || !_messageFormatsResourceKeys.TryGetValue(originalFormat, out var resourceKey) 
+            || string.IsNullOrEmpty(resourceKey))
         {
             base.Log(logLevel, eventId, state, exception, formatter);
             return;
