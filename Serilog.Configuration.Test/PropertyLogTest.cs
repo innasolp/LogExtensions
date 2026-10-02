@@ -48,10 +48,15 @@ public class PropertyLogTest
         var copyFilePath = $"{Path.GetDirectoryName(filePath)}\\{Path.GetFileNameWithoutExtension(filePath)}_copy{Path.GetExtension(filePath)}";
         File.Copy(filePath, copyFilePath);
 
-        var content = File.ReadAllText(copyFilePath);
-        Assert.Contains(subString, content);
-
-        File.Delete(copyFilePath);
+        try
+        {
+            var content = File.ReadAllText(copyFilePath);
+            Assert.Contains(subString, content);
+        }
+        finally
+        {
+            File.Delete(copyFilePath);
+        }
     }
 
     [Fact]
