@@ -4,7 +4,7 @@ internal static class Common
 {
     public static void AssertFileContent(string filePath, params string[] subStrings)
     {
-        var copyFilePath = $"{Path.GetDirectoryName(filePath)}\\{Path.GetFileNameWithoutExtension(filePath)}_copy{Path.GetExtension(filePath)}";
+var copyFilePath = Path.Combine(Path.GetDirectoryName(filePath) ?? "", $"{Path.GetFileNameWithoutExtension(filePath)}_copy{Path.GetExtension(filePath)}");
         File.Copy(filePath, copyFilePath);
 
         try
