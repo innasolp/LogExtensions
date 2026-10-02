@@ -22,7 +22,7 @@ var copyFilePath = Path.Combine(Path.GetDirectoryName(filePath) ?? "", $"{Path.G
     public static void AssertFileContentNotContains(string filePath, params string[] subStrings)
     {
 var copyFilePath = Path.Combine(Path.GetDirectoryName(filePath) ?? "", $"{Path.GetFileNameWithoutExtension(filePath)}_copy{Path.GetExtension(filePath)}");
-        File.Copy(filePath, copyFilePath);
+File.Copy(filePath, copyFilePath, true);
 
         try
         {
